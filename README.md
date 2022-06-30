@@ -6,10 +6,10 @@
 
 - [x] props
 - [x] event
-- [] children
+- [ ] children
 
 ### san in react
 
 - [x] props
 - [x] event
-- [] slot
+- [ ] slot
