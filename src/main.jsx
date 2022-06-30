@@ -8,9 +8,8 @@ let id = 0
 
 const makeReactContainer = Component => {
   return class ReactInVue extends React.Component {
-    static displayName = `ReactInSan${Component.displayName ||
-      Component.name ||
-      "Component"}`;
+    // 为啥是 displayName，好像抛 error 的时候可以显示
+    static displayName = `ReactInSan${Component.displayName || Component.name || "Component"}`;
     constructor(props) {
       super(props);
       this.state = { ...props };
