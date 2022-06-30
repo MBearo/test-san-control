@@ -4,8 +4,8 @@
 
 ### react in san
 
-- [] props
-- [] event
+- [x] props
+- [x] event
 
 ### san in react
 
