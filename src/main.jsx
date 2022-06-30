@@ -4,10 +4,6 @@ import App from './App'
 import san from 'san'
 import { omit } from 'lodash'
 
-// ReactDOM.createRoot(document.getElementById('root')).render(
-//     <App />
-// )
-
 let id = 0
 
 const makeReactContainer = Component => {
@@ -25,9 +21,7 @@ const makeReactContainer = Component => {
     }
   };
 };
-// function ReactApp2({ count }) {
-//   return <div>react child:{count}</div>
-// }
+
 class ReactApp2 extends React.Component {
   constructor(props) {
     super(props)
@@ -38,11 +32,6 @@ class ReactApp2 extends React.Component {
   }
 }
 class ReactWrap extends san.Component {
-  // constructor() {
-  //   super()
-  //   this.id = ++id
-  // }
-
   static template = `<div class="wrap-{{id}}"></div>`
 
   initData() {
