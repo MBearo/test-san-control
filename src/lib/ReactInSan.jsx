@@ -29,7 +29,7 @@ class ReactApp2 extends React.Component {
     return <div onClick={this.props.onClick}>react child:{this.props.count}</div>
   }
 }
-class ReactWrap extends san.Component {
+export class ReactWrap extends san.Component {
   static template = `<div class="wrap-{{id}}"></div>`
 
   initData() {
