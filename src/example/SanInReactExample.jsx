@@ -18,8 +18,8 @@ const SanAppChild = defineComponent({
 const SanApp = defineComponent({
     template: /*html*/`
         <div class="san-app">
-            <h1>san app</h1>
             <slot/>
+            <h1>san app</h1>
             <div>props count:{{value}}</div>
             <san-app-child s-ref="app2">
                 <div>slotData:{{value}}</div>
@@ -41,7 +41,21 @@ export default function SanInReactExample() {
         <div className="react-container">
             <h1>react container</h1>
             <button onClick={() => setCount(count + 1)}>+1 current count:{count}</button>
-            <SanAppInReact/>
+            <SanAppInReact value={count}>
+                {{
+                    default: (
+                        <>
+                            <div>222:{count}</div>
+                            <div>3</div>
+                        </>
+                    ),
+                    slot1: (
+                        <div>nameSlot:{count}</div>
+                    )
+                }}
+                <div>4</div>
+                <div>5</div>
+            </SanAppInReact>
             {/* <SanInReact san={SanApp} value={count} >
                  {{
                     default: (
