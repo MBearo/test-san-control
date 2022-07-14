@@ -21,6 +21,7 @@ const SanApp = defineComponent({
             <slot/>
             <h1>san app</h1>
             <div>props count:{{value}}</div>
+            <input value="{=status=}"/>
             <san-app-child s-ref="app2">
                 <div>slotData:{{value}}</div>
                 <a href="" slot="title">nameSlotData:{{value}}</a>
@@ -37,11 +38,18 @@ const SanApp = defineComponent({
 const SanAppInReact = SanInReact(SanApp)
 export default function SanInReactExample() {
     const [count, setCount] = useState(0)
+    const [status, setStatus] = useState('0')
     return (
         <div className="react-container">
             <h1>react container</h1>
-            <button onClick={() => setCount(count + 1)}>+1 current count:{count}</button>
-            <SanAppInReact value={count}>
+            <button onClick={() => setCount(v => v + 1)}>+1 current count:{count}</button>
+            <button onClick={() => setStatus(v => v + '1')}>status:{status}</button>
+            <SanAppInReact
+                value={count}
+                sModels={{
+                    status: [status, setStatus]
+                }}
+            >
                 {{
                     default: (
                         <>

@@ -4,7 +4,9 @@ import { omit } from 'lodash'
 import * as ReactDOMServer from 'react-dom/server';
 import { getId } from '../util';
 
-const getProps = (props) => omit(props, ['san', 'children'])
+const getProps = (props) => {
+  return omit(props, ['san', 'children', 'sModels'])
+}
 
 const SanEmptyCompant = defineComponent({
   template: '<slot/>'
@@ -18,24 +20,34 @@ export class SanContainer extends Component {
   }
   componentDidMount() {
     if (this.props.san) {
-      console.log('this.props', this.props.san)
+      console.log('this.props', this.props)
 
-      const sanProps = Object.keys(getProps(this.props)).reduce((acc, cur) => {
-        return acc + ` ${cur}="{{${cur}}}"`
-      }, '')
-      let sanChildren = ''
+      // const sanProps = Object.keys(getProps(this.props)).reduce((acc, cur) => {
+      //   return acc + ` ${cur}="{{${cur}}}"`
+      // }, '')
+      // let sanChildren = ''
       // TODO 没用了，需要基于aNode做
       // if (this.props.children) {
       //   const childrens = Array.isArray(this.props.children) ? this.props.children : [this.props.children]
       //   sanChildren = generateChildren(childrens)
       //   console.log('sanChildren', sanChildren)
       // }
-      const template = `<san-app${sanProps}>${sanChildren}</san-app>`
-      console.log('template', template)
+      // const template = `<san-app${sanProps}>${sanChildren}</san-app>`
+      // console.log('template', template)
       console.log('owner', this.owner)
+      // this.props.san.prototype.template="<template><radio/></template>"
+      console.log('template', this.props.san.prototype.template)
+      // TODO 再包一层，把 san 实例当做子组件
+      // 属性要透传，子组件的双向绑定可以watch，然后向上react调onchange
       this.sanApp = new this.props.san({
         owner: this.owner || undefined,
         source: this.source || undefined
+      })
+      // 牛逼，感觉有新思路了
+      // san 的实例有不少可用的
+      this.sanApp.watch('status', (e) => {
+        console.log('status change', e)
+        this.props.sModels.status[1](e)
       })
       // const SanApp = new defineComponent({
       //   template,
