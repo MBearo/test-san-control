@@ -4,7 +4,16 @@ import { omit } from 'lodash'
 import * as ReactDOMServer from 'react-dom/server';
 import { getId } from '../util';
 
-const getProps = (props) => {
+const getProps = (propss) => {
+  console.log('props', propss)
+  const props = { ...propss }
+  if (props.sModels) {
+    for (const key in props.sModels) {
+      if (Object.hasOwnProperty.call(props.sModels, key)) {
+        props[key] = props.sModels[key][0]
+      }
+    }
+  }
   return omit(props, ['san', 'children', 'sModels'])
 }
 
@@ -45,16 +54,20 @@ export class SanContainer extends Component {
       })
       // 牛逼，感觉有新思路了
       // san 的实例有不少可用的
-      this.sanApp.watch('status', (e) => {
-        console.log('status change', e)
-        this.props.sModels.status[1](e)
-      })
-      // const SanApp = new defineComponent({
-      //   template,
-      //   components: {
-      //     'san-app': this.props.san
-      //   }
-      // })
+      if (this.props.sModels) {
+        for (const key in this.props.sModels) {
+          if (Object.hasOwnProperty.call(this.props.sModels, key)) {
+            this.sanApp.watch(key, this.props.sModels[key][1])
+          }
+        }
+      }
+      const SanApp = new (defineComponent({
+        template: `<san-app/>`,
+        components: {
+          'san-app': this.props.san
+        }
+      }))()
+      console.log('SanApp', SanApp)
       // this.sanApp = new SanApp()
       this.sanApp.data.assign(getProps(this.props))
       // this.sanApp = new this.props.san()

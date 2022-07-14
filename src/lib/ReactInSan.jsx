@@ -105,7 +105,7 @@ export const ReactContainer = (react) => {
             x: 1 // 全部双向绑定
           }
         }))
-      const slotEvent=allEvents.map(v => ({
+      const slotEvent = allEvents.map(v => ({
         ...v,
         name: v.expr.name.paths[0].value
       }))
