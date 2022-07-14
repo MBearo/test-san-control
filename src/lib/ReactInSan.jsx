@@ -1,88 +1,184 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import san from 'san'
+import san, { defineComponent } from 'san'
 import { omit } from 'lodash'
-
-let id = 0
+import { getId } from '../util';
+import { SanInReact } from './SanInReact';
+const ExprType = {
+  STRING: 1,
+  NUMBER: 2,
+  BOOL: 3,
+  ACCESSOR: 4,
+  INTERP: 5,
+  CALL: 6,
+  TEXT: 7,
+  BINARY: 8,
+  UNARY: 9,
+  TERTIARY: 10,
+  ARRAY: 11,
+  OBJECT: 12
+};
+const getProps = (data) => omit(data, ['react', 'id'])
 
 const makeReactContainer = Component => {
-  return class ReactInVue extends React.Component {
+  return class ReactInSan extends React.Component {
     // 为啥是 displayName，好像抛 error 的时候可以显示
     static displayName = `ReactInSan${Component.displayName || Component.name || "Component"}`;
-    constructor(props) {
-      super(props);
-      this.state = { ...props };
-    }
     render() {
-      const { ...rest } = this.state;
-      return <Component {...rest}></Component>;
+      return <Component {...this.props} />;
     }
   };
 };
 
-class ReactApp2 extends React.Component {
-  constructor(props) {
-    super(props)
+export const ReactContainer = (react) => {
+  class ReactInSan extends san.Component {
+    static template = `<div class="wrap-{{id}}"></div>`;
+    initData() {
+      return {
+        id: getId()
+      }
+    }
+    beforeCompile() {
+      // console.log(this)
+      // this.prototype.template = `<div class="wrap-{{id}}"><slot/></div>`;
+      // console.log('template', this.template)
+    }
+    updated() {
+      console.log('san update')
+      this.render()
+    }
+    attached() {
+      this.Component = makeReactContainer(react);
+      this.render(true)
+    }
+    disposed() {
+      console.log('disposed?')
+      this.reactRoot.unmount()
+    }
+    render(isAttach) {
+      const Component = this.Component
+      const eventObj = {}
+      for (const key in this.listeners) {
+        eventObj[`on${key.replace(/^\S/, s => s.toUpperCase())}`] = (e) => this.listeners[key].forEach(({ fn }) => fn(e))
+      }
+      const myANodeInParentComponent = this.parentComponent.aNode.children[this.parentComponent.children.findIndex(v => v === this)]
+      console.log('this', this)
+      console.log('myANodeInParentComponent.children', myANodeInParentComponent.children)
+
+      const allEvents = getAllEvents(myANodeInParentComponent.children)
+      console.log('slotallEvents', allEvents)
+      const slotEventObject = allEvents.reduce((acc, cur) => {
+        acc[cur.expr.name.paths[0].value] = function (...args) {
+          this.fire(cur.expr.name.paths[0].value, args) // fire 只能一个，所以多个参数只能用数组
+        }
+        return acc
+      }, {})
+      console.log('slotEventObject', slotEventObject)
+      const slotComponent = san.defineComponent({
+        template: `<template></template>`,
+        aNode: {
+          directives: {},
+          props: [],
+          events: [],
+          children: myANodeInParentComponent.children,
+        },
+        components: this.parentComponent.components,
+        // TODO 临时
+        ...slotEventObject
+      })
+      const allProps = getAllProps(myANodeInParentComponent.children)
+      const allExprKeys = getAllTextExprFirstKey(myANodeInParentComponent.children)
+      console.log('allProps', allProps)
+      console.log('allExprKeys', allExprKeys)
+      const slotNodeProps = allProps
+        .concat(allExprKeys.map(v => ({
+          name: v,
+          expr: {
+            type: 4,
+            paths: [{ type: 1, value: v }]
+          }
+        })))
+        .map(v => ({
+          ...v,
+          expr: {
+            ...v.expr,
+            x: 1 // 全部双向绑定
+          }
+        }))
+      const slotEvent=allEvents.map(v => ({
+        ...v,
+        name: v.expr.name.paths[0].value
+      }))
+      const slotANode = {
+        directives: {},
+        props: slotNodeProps,
+        events: slotEvent,
+        tagName: 'san-app',
+        children: []
+      }
+      console.log('slotANode', slotANode)
+      if (!this.SlotComponent) {
+        this.SlotComponent = SanInReact(
+          slotComponent,
+          {
+            owner: this.parentComponent,
+            source: slotANode // TODO 临时
+          }
+        )
+      }
+
+      if (isAttach) {
+        this.reactRoot = ReactDOM.createRoot(document.querySelector(`.wrap-${this.data.get('id')}`))
+      }
+      this.reactRoot.render(
+        <Component
+          {...getProps(this.data.get())}
+          {...eventObj}
+        >
+          <this.SlotComponent />
+        </Component>
+      )
+    }
   }
-  render() {
-    console.log('ReactApp2', this)
-    return <div onClick={this.props.onClick}>react child:{this.props.count}</div>
-  }
+  return ReactInSan;
 }
-export class ReactWrap extends san.Component {
-  static template = `<div class="wrap-{{id}}"></div>`
 
-  initData() {
-    return {
-      id: ++id
-    }
-  }
-  updated() {
-    this.reactComponentRef.setState(omit(this.data.get(), ['react', 'id']));
-  }
-  attached() {
-    // console.log('this', this)
-    // console.log('this2', this.listeners)
-    // console.log('event', this.listeners.click[0])
-    const react = this.data.get('react')
-    const Component = makeReactContainer(react);
-    // console.log('react', react)
-    const eventObj = {}
-    for (const key in this.listeners) {
-      eventObj[`on${key.replace(/^\S/, s => s.toUpperCase())}`] = (e) => this.listeners[key].forEach(({ fn }) => fn(e))
-    }
-    console.log(eventObj)
-    this.reactRoot = ReactDOM.createRoot(document.querySelector(`.wrap-${this.data.get('id')}`))
-    this.reactRoot.render(<Component ref={ref => (this.reactComponentRef = ref)} {...omit(this.data.get(), ['react', 'id'])} {...eventObj} />)
-  }
-  disposed() {
-    this.reactRoot.unmount()
-  }
+export function ReactInSan(react) {
+  return ReactContainer(react)
 }
-
-
-const sanApp = san.defineComponent({
-  template: /*html*/`
-  <div class="app">
-    <button on-click="increment">+1:{{count}}</button>
-    <react-wrap react="{{react}}" count="{{count}}" on-click="fff"></react-wrap>
-  </div>
-  `,
-  components: {
-    'react-wrap': ReactWrap
-  },
-  initData() {
-    return {
-      count: 1,
-      react: ReactApp2
+function getAllEvents(childrens) {
+  const events = []
+  childrens.forEach(v => {
+    if (v.events) {
+      events.push(...v.events)
     }
-  },
-  increment() {
-    this.data.set('count', this.data.get('count') + 1)
-  },
-  fff(e) {
-    console.log(1, e)
-    console.log(this.data.get('count'))
-  }
-})
-  ; (new sanApp()).attach(document.getElementById('root'))
+    if (v.children) {
+      events.push(...getAllEvents(v.children))
+    }
+  })
+  return events
+}
+function getAllProps(childrens) {
+  const props = []
+  childrens.forEach(v => {
+    if (v.props) {
+      props.push(...v.props)
+    }
+    if (v.children) {
+      props.push(...getAllProps(v.children))
+    }
+  })
+  return props
+}
+function getAllTextExprFirstKey(childrens) {
+  const textExpr = []
+  childrens.forEach(v => {
+    if (v.textExpr && v.textExpr.type === 7) {
+      v.textExpr.segs.filter(v => v.type === 5).forEach(v => textExpr.push(v.expr.paths[0].value))
+    }
+    if (v.children) {
+      textExpr.push(...getAllTextExprFirstKey(v.children))
+    }
+  })
+  return textExpr
+}

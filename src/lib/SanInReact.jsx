@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef, Component, forwardRef, createRef } 
 import { defineComponent } from 'san'
 import { omit } from 'lodash'
 import * as ReactDOMServer from 'react-dom/server';
+import { getId } from '../util';
 
-let id = 0
 const getProps = (props) => omit(props, ['san', 'children'])
 
 const SanEmptyCompant = defineComponent({
@@ -13,31 +13,37 @@ const SanEmptyCompant = defineComponent({
 export class SanContainer extends Component {
   constructor() {
     super()
-    this.id = ++id
+    this.id = getId()
     // this.sanAppChildrens = []
   }
   componentDidMount() {
     if (this.props.san) {
-      console.log('this.props', this.props)
+      console.log('this.props', this.props.san)
 
       const sanProps = Object.keys(getProps(this.props)).reduce((acc, cur) => {
         return acc + ` ${cur}="{{${cur}}}"`
       }, '')
       let sanChildren = ''
-      if (this.props.children) {
-        const childrens = Array.isArray(this.props.children) ? this.props.children : [this.props.children]
-        sanChildren = generateChildren(childrens)
-        console.log('sanChildren', sanChildren)
-      }
+      // TODO 没用了，需要基于aNode做
+      // if (this.props.children) {
+      //   const childrens = Array.isArray(this.props.children) ? this.props.children : [this.props.children]
+      //   sanChildren = generateChildren(childrens)
+      //   console.log('sanChildren', sanChildren)
+      // }
       const template = `<san-app${sanProps}>${sanChildren}</san-app>`
       console.log('template', template)
-      const SanApp = new defineComponent({
-        template,
-        components: {
-          'san-app': this.props.san
-        }
+      console.log('owner', this.owner)
+      this.sanApp = new this.props.san({
+        owner: this.owner || undefined,
+        source: this.source || undefined
       })
-      this.sanApp = new SanApp()
+      // const SanApp = new defineComponent({
+      //   template,
+      //   components: {
+      //     'san-app': this.props.san
+      //   }
+      // })
+      // this.sanApp = new SanApp()
       this.sanApp.data.assign(getProps(this.props))
       // this.sanApp = new this.props.san()
       // this.sanApp.data.assign(omit(this.props, ['san', 'children']))
@@ -56,6 +62,7 @@ export class SanContainer extends Component {
     console.log('children', this.props.children)
   }
   componentDidUpdate() {
+    console.log('san update data', getProps(this.props))
     if (this.props.san) {
       this.sanApp.data.assign(getProps(this.props))
     }
@@ -68,7 +75,7 @@ export class SanContainer extends Component {
   render() {
     if (this.props.san) {
       return (
-        <div className={`wrap-${this.id}`} {...omit(this.props, ['san', 'children'])}></div>
+        <div className={`wrap-${this.id}`} {...getProps(this.props)}></div>
       )
     } else {
       return null
@@ -76,7 +83,7 @@ export class SanContainer extends Component {
   }
 }
 
-export function SanInReact(component) {
+export function SanInReact(component, { owner, source } = {}) {
   if (!component) {
     console.warn('Component must be passed in SanInReact!')
   }
@@ -86,6 +93,8 @@ export function SanInReact(component) {
   }
   // eslint-disable-next-line react/display-name
   return forwardRef((props, ref) => {
+    SanContainer.prototype.owner = owner
+    SanContainer.prototype.source = source
     return <SanContainer {...props} san={component} ref={ref} />
   })
 }
