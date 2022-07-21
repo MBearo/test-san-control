@@ -18,6 +18,17 @@ const ExprType = {
   ARRAY: 11,
   OBJECT: 12
 };
+var NodeType = {
+  TEXT: 1,
+  IF: 2,
+  FOR: 3,
+  ELEM: 4,
+  CMPT: 5,
+  SLOT: 6,
+  FRAG: 7,
+  LOADER: 8,
+  IS: 9
+};
 const getProps = (data) => omit(data, ['react', 'id'])
 
 const makeReactContainer = Component => {
