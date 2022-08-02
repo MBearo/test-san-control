@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, Component, forwardRef, createRef } from 'react'
 import { defineComponent } from 'san'
 import { omit } from 'lodash'
-import * as ReactDOMServer from 'react-dom/server';
-import { getId } from '../util';
+import * as ReactDOMServer from 'react-dom/server'
+import { getId } from '../util'
 
 const getProps = (propss) => {
   console.log('props', propss)
@@ -22,12 +22,13 @@ const SanEmptyCompant = defineComponent({
 })
 
 export class SanContainer extends Component {
-  constructor() {
+  constructor () {
     super()
     this.id = getId()
     // this.sanAppChildrens = []
   }
-  componentDidMount() {
+
+  componentDidMount () {
     if (this.props.san) {
       console.log('this.props', this.props)
 
@@ -62,7 +63,7 @@ export class SanContainer extends Component {
         }
       }
       const SanApp = new (defineComponent({
-        template: `<san-app/>`,
+        template: '<san-app/>',
         components: {
           'san-app': this.props.san
         }
@@ -86,18 +87,21 @@ export class SanContainer extends Component {
     }
     console.log('children', this.props.children)
   }
-  componentDidUpdate() {
+
+  componentDidUpdate () {
     console.log('san update data', getProps(this.props))
     if (this.props.san) {
       this.sanApp.data.assign(getProps(this.props))
     }
   }
-  componentWillUnmount() {
+
+  componentWillUnmount () {
     if (this.props.san) {
       this.sanApp.detach()
     }
   }
-  render() {
+
+  render () {
     if (this.props.san) {
       return (
         <div className={`wrap-${this.id}`} {...getProps(this.props)}></div>
@@ -108,7 +112,7 @@ export class SanContainer extends Component {
   }
 }
 
-export function SanInReact(component, { owner, source } = {}) {
+export function SanInReact (component, { owner, source } = {}) {
   if (!component) {
     console.warn('Component must be passed in SanInReact!')
   }
@@ -124,7 +128,7 @@ export function SanInReact(component, { owner, source } = {}) {
   })
 }
 
-function generateChildren(children) {
+function generateChildren (children) {
   const childrens = Array.isArray(children) ? children : [children]
   let string = ''
   for (const child of childrens) {

@@ -1,6 +1,6 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import SanInReactExample from './example/SanInReactExample'
+// import React from 'react'
+// import ReactDOM from 'react-dom/client'
+// import SanInReactExample from './example/SanInReactExample'
 import './dev/san'
 // import './example/ReactInSanExample'
 
@@ -8,3 +8,6 @@ import './dev/san'
 //     <SanInReactExample />
 // )
 
+// import './dev'
+// import './dev/index2'
+// import './dev/slot'

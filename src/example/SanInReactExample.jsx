@@ -4,7 +4,7 @@ import { defineComponent } from 'san'
 import './index.css'
 
 const SanAppChild = defineComponent({
-    template: /*html*/`
+  template: /* html */`
     <div class="san-app-child">
         <h1>san app child</h1>
         <div>
@@ -16,7 +16,7 @@ const SanAppChild = defineComponent({
 })
 
 const SanApp = defineComponent({
-    template: /*html*/`
+  template: /* html */`
         <div class="san-app">
             <slot/>
             <h1>san app</h1>
@@ -28,18 +28,18 @@ const SanApp = defineComponent({
             </san-app-child>
         </div>
     `,
-    components: {
-        'san-app-child': SanAppChild
-    },
-    attached() {
-        console.log('app2', this.ref('app2'))
-    }
+  components: {
+    'san-app-child': SanAppChild
+  },
+  attached () {
+    console.log('app2', this.ref('app2'))
+  }
 })
 const SanAppInReact = SanInReact(SanApp)
-export default function SanInReactExample() {
-    const [count, setCount] = useState(0)
-    const [status, setStatus] = useState('0')
-    return (
+export default function SanInReactExample () {
+  const [count, setCount] = useState(0)
+  const [status, setStatus] = useState('0')
+  return (
         <div className="react-container">
             <h1>react container</h1>
             <button onClick={() => setCount(v => v + 1)}>+1 current count:{count}</button>
@@ -47,19 +47,19 @@ export default function SanInReactExample() {
             <SanAppInReact
                 value={count}
                 sModels={{
-                    status: [status, setStatus]
+                  status: [status, setStatus]
                 }}
             >
                 {{
-                    default: (
+                  default: (
                         <>
                             <div>222:{count}</div>
                             <div>3</div>
                         </>
-                    ),
-                    slot1: (
+                  ),
+                  slot1: (
                         <div>nameSlot:{count}</div>
-                    )
+                  )
                 }}
                 <div>4</div>
                 <div>5</div>
@@ -79,5 +79,5 @@ export default function SanInReactExample() {
                 <div>4</div>
             </SanInReact> */}
         </div>
-    )
+  )
 }

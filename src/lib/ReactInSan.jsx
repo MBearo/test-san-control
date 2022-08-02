@@ -2,8 +2,8 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import san, { defineComponent } from 'san'
 import { omit } from 'lodash'
-import { getId } from '../util';
-import { SanInReact } from './SanInReact';
+import { getId } from '../util'
+import { SanInReact } from './SanInReact'
 const ExprType = {
   STRING: 1,
   NUMBER: 2,
@@ -17,8 +17,8 @@ const ExprType = {
   TERTIARY: 10,
   ARRAY: 11,
   OBJECT: 12
-};
-var NodeType = {
+}
+const NodeType = {
   TEXT: 1,
   IF: 2,
   FOR: 3,
@@ -28,45 +28,50 @@ var NodeType = {
   FRAG: 7,
   LOADER: 8,
   IS: 9
-};
+}
 const getProps = (data) => omit(data, ['react', 'id'])
 
 const makeReactContainer = Component => {
   return class ReactInSan extends React.Component {
     // 为啥是 displayName，好像抛 error 的时候可以显示
-    static displayName = `ReactInSan${Component.displayName || Component.name || "Component"}`;
-    render() {
-      return <Component {...this.props} />;
+    static displayName = `ReactInSan${Component.displayName || Component.name || 'Component'}`
+    render () {
+      return <Component {...this.props} />
     }
-  };
-};
+  }
+}
 
 export const ReactContainer = (react) => {
   class ReactInSan extends san.Component {
-    static template = `<div class="wrap-{{id}}"></div>`;
-    initData() {
+    static template = '<div class="wrap-{{id}}"></div>'
+    initData () {
       return {
         id: getId()
       }
     }
-    beforeCompile() {
+
+    beforeCompile () {
       // console.log(this)
       // this.prototype.template = `<div class="wrap-{{id}}"><slot/></div>`;
       // console.log('template', this.template)
     }
-    updated() {
+
+    updated () {
       console.log('san update')
       this.render()
     }
-    attached() {
-      this.Component = makeReactContainer(react);
+
+    attached () {
+      this.Component = makeReactContainer(react)
       this.render(true)
     }
-    disposed() {
+
+    disposed () {
       console.log('disposed?')
       this.reactRoot.unmount()
     }
-    render(isAttach) {
+
+    render (isAttach) {
       const Component = this.Component
       const eventObj = {}
       for (const key in this.listeners) {
@@ -86,12 +91,12 @@ export const ReactContainer = (react) => {
       }, {})
       console.log('slotEventObject', slotEventObject)
       const slotComponent = san.defineComponent({
-        template: `<template></template>`,
+        template: '<template></template>',
         aNode: {
           directives: {},
           props: [],
           events: [],
-          children: myANodeInParentComponent.children,
+          children: myANodeInParentComponent.children
         },
         components: this.parentComponent.components,
         // TODO 临时
@@ -151,13 +156,13 @@ export const ReactContainer = (react) => {
       )
     }
   }
-  return ReactInSan;
+  return ReactInSan
 }
 
-export function ReactInSan(react) {
+export function ReactInSan (react) {
   return ReactContainer(react)
 }
-function getAllEvents(childrens) {
+function getAllEvents (childrens) {
   const events = []
   childrens.forEach(v => {
     if (v.events) {
@@ -169,7 +174,7 @@ function getAllEvents(childrens) {
   })
   return events
 }
-function getAllProps(childrens) {
+function getAllProps (childrens) {
   const props = []
   childrens.forEach(v => {
     if (v.props) {
@@ -181,7 +186,7 @@ function getAllProps(childrens) {
   })
   return props
 }
-function getAllTextExprFirstKey(childrens) {
+function getAllTextExprFirstKey (childrens) {
   const textExpr = []
   childrens.forEach(v => {
     if (v.textExpr && v.textExpr.type === 7) {
