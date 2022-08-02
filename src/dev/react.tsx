@@ -4,11 +4,12 @@ import san from 'san'
 import { ReactInSan } from '../lib-v2/ReactInSan'
 
 const ReactApp = ({ children }) => {
+    console.log('children', children)
     return (
         <div>children:{children}</div>
     )
 }
-const ReactAppInSan= ReactInSan(ReactApp)
+const ReactAppInSan = ReactInSan(ReactApp)
 const SanApp = san.defineComponent({
     template:/*html*/`
         <div>
@@ -28,17 +29,18 @@ const SanApp = san.defineComponent({
     // updated(){
     //     console.log('update')
     // },
-    components:{
+    components: {
         'react-app-in-san': ReactAppInSan
     },
-    count(){
+    count() {
         this.data.set('value', this.data.get('value') + 1)
     }
 })
-const sanApp=new SanApp()
+const sanApp = new SanApp()
 sanApp.attach(document.querySelector('#root'))
-const ReactApp2=({children})=>{
-    return(
-        <ReactApp>children</ReactApp>
-    )
-}
+// const ReactApp2 = () => {
+//     return (
+//         <ReactApp>children???</ReactApp>
+//     )
+// }
+// ReactDOM.createRoot(document.querySelector('#root')).render(<ReactApp2/>)

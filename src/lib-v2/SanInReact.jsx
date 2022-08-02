@@ -174,7 +174,7 @@ function Container (SanComponent) {
       //     this.sanApp.watch(key, value[1])
       //   })
       // }
-      typeof SanComponent === 'function' && this.sanAppContainer.attach(this.sanApp)
+      this.sanAppContainer.attach(node)
       // this.sanApp.attach(this.sanAppContainer.el)
       // * <- attach-el
       // parentNode.replaceChild(parentNode.children[1].children[0], parentNode.children[1])

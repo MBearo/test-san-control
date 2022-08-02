@@ -34,8 +34,8 @@ function Container (ReactComponent) {
       const sanApp = new SanContainer()
       console.log('sanApp', typeof sanApp)
       sanApp.children = this.children[0]
-      const res = SanInReact(sanApp)
-      console.log('res', res)
+      const Res = SanInReact(sanApp)
+      console.log('res', <Res/>)
       // const notify = () => {
       //   console.log('notify')
       // }
@@ -48,7 +48,7 @@ function Container (ReactComponent) {
       //   }
       //   v = originFn
       // })
-      this.render(res)
+      this.render(Res)
     }
 
     updated () {
@@ -69,12 +69,15 @@ function Container (ReactComponent) {
     }
 
     render (Child) {
+      console.log('Child', Child)
       // ? 会不会有直接使用 react element 的需求，而不是现在的传一个 react component
       const porps = getAllProps(this)
       if (typeof ReactComponent === 'function') {
-        this.ReactDOMRoot.render(<ReactComponent {...porps} >
-          <Child/>
-        </ReactComponent>)
+        this.ReactDOMRoot.render(
+          <ReactComponent {...porps} >
+            2349587
+          </ReactComponent>
+        )
       } else if (this.data.get(REACT_ELEMENT)) {
         console.log('this.data.get(REACT_ELEMENT)', this.data.get(REACT_ELEMENT))
         this.ReactDOMRoot.render(this.data.get(REACT_ELEMENT))

@@ -129,14 +129,14 @@ const React4 = () => {
     </div>
   )
 }
-// ReactDOM.createRoot(document.getElementById('root')).render(
-//   <React4 />
-// )
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React4 />
+)
 // console.log('React2', React2().props.children[1].type(React2().props.children[1].props))
 const sanApp = new SanApp()
 console.log('sanApp', sanApp)
 window.app = sanApp
-sanApp.attach(document.querySelector('#root'))
+// sanApp.attach(document.querySelector('#root'))
 
 // const Table = san.defineComponent({
 //   template: '' +
