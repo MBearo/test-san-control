@@ -2,8 +2,8 @@ import san from 'san'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import _ from 'lodash'
-import { kebabCaseToCamelCase, kebabCaseToPascalCase } from '../util'
-
+import { kebabCaseToCamelCase, kebabCaseToPascalCase, REACT_ELEMENT } from '../util'
+import { SanInReact } from './SanInReact'
 /**
  * props
  * event
@@ -12,42 +12,85 @@ import { kebabCaseToCamelCase, kebabCaseToPascalCase } from '../util'
 
 function Container (ReactComponent) {
   return class Container extends san.Component {
-    static template = '' // 不声明template会报错
+    static template = '<template><slot/></template>' // 不声明template会报错
     created () {
     }
 
     attached () {
       console.log('container', this)
       console.log('getBind', getBind(this))
+
+      // 监听父组件的更新
+      const originFn = this.parentComponent.updated || function () { }
+      this.parentComponent.updated = (...args) => {
+        console.log('update from children')
+        originFn.call(this.parentComponent, ...args)
+        console.log(this.children[0])
+      }
+      const SanContainer = san.defineComponent({
+        template: '<template><slot/></template>'
+      })
+      console.log('SanContainer', typeof SanContainer)
+      const sanApp = new SanContainer()
+      console.log('sanApp', typeof sanApp)
+      sanApp.children = this.children[0]
+      const res = SanInReact(sanApp)
+      console.log('res', res)
+      // const notify = () => {
+      //   console.log('notify')
+      // }
       this.ReactDOMRoot = ReactDOM.createRoot(this.el)
-      this.render()
+      // this.children[0].childScope.listeners.forEach(v => {
+      //   const originFn = v
+      //   const fn = () => {
+      //     notify()
+      //     originFn()
+      //   }
+      //   v = originFn
+      // })
+      this.render(res)
     }
 
     updated () {
-      this.render()
+      const SanContainer = san.defineComponent({
+        template: '<template><slot/></template>'
+      })
+      console.log('SanContainer', typeof SanContainer)
+      const sanApp = new SanContainer()
+      console.log('sanApp', typeof sanApp)
+      sanApp.children = this.children[0]
+      const res = SanInReact(sanApp)
+      console.log('res', res)
+      this.render(res)
     }
 
     disposed () {
       this.ReactDOMRoot.unmount()
     }
 
-    render () {
+    render (Child) {
+      // ? 会不会有直接使用 react element 的需求，而不是现在的传一个 react component
       const porps = getAllProps(this)
-      this.ReactDOMRoot.render(<ReactComponent {...porps} />)
+      if (typeof ReactComponent === 'function') {
+        this.ReactDOMRoot.render(<ReactComponent {...porps} >
+          <Child/>
+        </ReactComponent>)
+      } else if (this.data.get(REACT_ELEMENT)) {
+        console.log('this.data.get(REACT_ELEMENT)', this.data.get(REACT_ELEMENT))
+        this.ReactDOMRoot.render(this.data.get(REACT_ELEMENT))
+      }
     }
   }
 }
 
 export const ReactInSan = (ReactComponent) => {
-  if (!ReactComponent) {
-    console.warn('Component must be passed in ReactInSan!')
-    return
-  }
+  // 不用判断是否传了值
   return Container(ReactComponent)
 }
 function getBind (self) {
   const bindObj = {}
-  for (const item of self.binds) {
+  // TODO 属性为slot的时候，parent.data是空的，不知道是为啥
+  for (const item of self.binds.filter(v => v.name !== 'slot')) {
     bindObj[item.name] = self.parent.data.get(item.expr)
     // react 调用 {变量名}Change 的函数修改变量
     // TODO react 事件转为原始事件

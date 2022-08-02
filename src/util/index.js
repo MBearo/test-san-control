@@ -42,3 +42,4 @@ export function kebabCaseToPascalCase (str) {
 export function firstLetterDowncase (str) {
   return str.charAt(0).toLowerCase() + str.slice(1)
 }
+export const REACT_ELEMENT = '__$ReactElement'
