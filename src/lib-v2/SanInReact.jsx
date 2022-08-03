@@ -158,6 +158,8 @@ function Container (SanComponent) {
       //     'san-child': temp
       //   }
       // })
+      console.log('this.sanAppContainer', this.sanAppContainer)
+      console.log('this.lifeCycle', this.sanAppContainer.lifeCycle)
       console.log('this.sanApp', this.sanApp)
       console.log('props', this.props)
       // const parentNode = node.parentNode
@@ -175,6 +177,7 @@ function Container (SanComponent) {
       //   })
       // }
       this.sanAppContainer.attach(node)
+      console.log('this.lifeCycle', this.sanAppContainer.lifeCycle)
       // this.sanApp.attach(this.sanAppContainer.el)
       // * <- attach-el
       // parentNode.replaceChild(parentNode.children[1].children[0], parentNode.children[1])
